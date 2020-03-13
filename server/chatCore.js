@@ -1,4 +1,5 @@
 const User = require('./models/User');
+const Message = require('./models/Message');
 
 module.exports = {
 
@@ -69,6 +70,80 @@ module.exports = {
                     }
                 });
             }
+        });
+    },
+
+    getUsers: function(room, callback) {
+        let users = [];
+        const cursor = User.find({room}).cursor();
+
+        cursor.on('data', function (doc) {
+            console.log(doc);
+            users.push(doc);
+        });
+
+        cursor.on('close', function () {
+            console.log(users);
+            callback(users);
+        });
+    },
+
+    enterChat: function (io, socket, name, room) {
+        const text = `${name}, welcome to the room`;
+        this.createMessage(io, socket, 'admin', room, 'welcome', name, text, function (response) {
+            if(response.status === 'success') {
+                console.log(response.newmsg);
+                socket.emit('message', response.newmsg);
+            }
+        });
+
+        const notif = `${name} has joined`;
+        this.createMessage(io, socket, 'admin', room, 'join', name, notif, function (response) {
+            if(response.status === 'success') {
+                socket.broadcast.to(room).emit('message', response.newmsg);
+            }
+        });
+
+        socket.join(room);
+
+        this.getUsers(room, function (users) {
+            io.to(room).emit('roomData', {users});
+        });
+    },
+
+    createMessage: function (io, socket, name, room, type, user, text, callback) {
+        let message = new Message({
+            name: name,
+            room: room,
+            type: type,
+            user: user,
+            at: new Date(),
+            text: text
+        });
+        console.log(message);
+        message.save((err, newmsg) => {
+            if (err) {
+                callback({status: 'error'});
+            } else {
+                console.log('message saved in db');
+                console.log({status: 'success', newmsg});
+                callback({status: 'success', newmsg});
+            }
+        });
+    },
+
+    getLatestMessages: function (room, callback) {
+        let messages = [];
+        const cursor = Message.find({room}).cursor();
+
+        cursor.on('data', function (doc) {
+            console.log(doc);
+            messages.push(doc);
+        });
+
+        cursor.on('close', function () {
+            console.log(messages);
+            callback(messages);
         });
     }
 };
