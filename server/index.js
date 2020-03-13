@@ -22,11 +22,31 @@ const io = socketio(server);
 app.use(router);
 app.use(cors());
 
+const chat = require('./chatCore');
+
 io.on('connection', (socket) => {
     console.log('new connection');
 
     socket.emit('connect', () => {
        console.log('connection with client has established');
+    });
+
+    socket.on('register', ({name, password, room}, callback) => {
+        console.log(name, room);
+
+        chat.signUp(socket, name, password, room, function (response) {
+            console.log(response);
+            callback(response);
+        });
+    });
+
+    socket.on('login', ({name, password, room}, callback) => {
+        console.log(name, room);
+
+        chat.signIn(socket, name, password, room, function (response) {
+            console.log(response);
+            callback(response);
+        });
     });
 });
 
