@@ -70,6 +70,8 @@ const RegisterCore = ({socket, ...props}) => {
 
                     console.log(props.history);
                     props.history.push("/");
+
+                    socket.emit('enterChat', {name, room});
                 }
             })
         } else setStatus('Not valid fields');

@@ -7,11 +7,12 @@ import PrivateRoute from './components/PrivateRoute';
 import {AuthLayout} from './components/AuthLayout';
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Chat from './components/Chat';
+import Chat from './components/Chat'
 
 import SocketContext from './SocketContext';
 
-const socket = io('localhost:8080');
+const socket = io('https://react-chat-application-01.herokuapp.com/');
+// const socket = io('localhost:5000');
 
 const App = () => (
     <SocketContext.Provider value={socket}>
