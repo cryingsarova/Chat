@@ -8,6 +8,6 @@ const withAppLayout = Component => props => <UnAuthNavBar><Component {...props} 
 export const AuthLayout = ({ component, ...props }) => {
     console.log('nav bar');
     return (
-        <Route {...props} component={withAppLayout(component)}/>
+    <Route {...props} component={withAppLayout(component)}/>
     );
 };
