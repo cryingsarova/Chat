@@ -28,15 +28,18 @@ UserSchema.pre('save', function (next) {
         console.log('new');
         const document = this;
 
+        // generate a salt
         bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
             if (err) {
                 console.log('error salt');
                 return next(err);
             }
 
+            // hash the password using our new salt
             bcrypt.hash(document.password, salt, null, function (err, hash) {
                 if (err) return next(err);
 
+                // override the cleartext password with the hashed one
                 document.password = hash;
                 next();
             });
